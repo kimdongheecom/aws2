@@ -1,0 +1,89 @@
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    env_file:
+      - ./frontend/.env
+    environment:
+      - NODE_ENV=development
+      - NEXT_TELEMETRY_DISABLED=1
+    restart: always
+    networks:
+      - lif-network
+
+  news-service:
+    build: ./news-service
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./news-service/app:/app/app
+      - ./news-service/requirements.txt:/app/requirements.txt
+    env_file:
+      - ./news-service/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - SERVICE_NAME=news-service
+    restart: always
+    networks:
+      - lif-network
+
+  sasb-service:
+    build: ./sasb-service
+    ports:
+      - "8004:8004"
+    volumes:
+      - ./sasb-service/app:/app/app
+      - ./sasb-service/requirements.txt:/app/requirements.txt
+    env_file:
+      - ./sasb-service/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - SERVICE_NAME=sasb-service
+    restart: always
+    networks:
+      - lif-network
+
+  issuepool-service:
+    build: ./issuepool-service
+    ports:
+      - "8005:8005"
+    volumes:
+      - ./issuepool-service/app:/app/app
+      - ./issuepool-service/requirements.txt:/app/requirements.txt
+    env_file:
+      - ./issuepool-service/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - SERVICE_NAME=issuepool-service
+    restart: always
+    networks:
+      - lif-network
+
+  gateway:
+    build: ./gateway
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./gateway:/app
+    env_file:
+      - ./gateway/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - NEWS_SERVICE_URL=http://news-service:8003
+      - SASB_SERVICE_URL=http://sasb-service:8004
+      - ISSUEPOOL_SERVICE_URL=http://issuepool-service:8005
+      - SERVICE_NAME=gateway
+    restart: always
+    depends_on:
+      - news-service
+      - sasb-service
+      - issuepool-service
+    networks:
+      - lif-network
+networks:
+  lif-network:
+    driver: bridge
