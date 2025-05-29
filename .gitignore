@@ -1,5 +1,2 @@
-# 루트 또는 sasb-service/.gitignore
-sasb-service/.env
-issuepool-service/.env
 news-service/.env
 gateway/.env

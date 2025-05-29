@@ -1,1 +1,0 @@
-# SASB Service Domain Model Package 
